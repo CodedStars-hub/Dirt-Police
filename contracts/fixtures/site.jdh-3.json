@@ -1,0 +1,63 @@
+{
+  "type": "Feature",
+  "geometry": { "type": "Point", "coordinates": [73.0458, 26.2701] },
+  "properties": {
+    "site_id": "site_jdh_3",
+    "report_type": "contaminated_water",
+    "context": "choked_drain",
+    "status": "reopened",
+    "verification": "verified",
+    "report_count": 5,
+    "verified_count": 5,
+    "corroborations": 9,
+    "backers": { "count": 10, "needed": 10, "photo_people": 4, "vote_people": 6 },
+    "votes": { "confirm": 6, "reject": 0 },
+    "photo_urls": [
+      "https://d111111abcdef8.cloudfront.net/media/reports/rpt_jdh_3.jpg",
+      "https://d111111abcdef8.cloudfront.net/media/reports/rpt_jdh_3a.jpg"
+    ],
+    "photo_flags": [{ "photo_id": "rpt_jdh_3a", "count": 3, "warned": true, "hidden": false }],
+    "cleanup_status": "none",
+    "cleanup_photo_url": "https://d111111abcdef8.cloudfront.net/media/cleanups/cln_jdh_3c.jpg",
+    "burning": false,
+    "location": {
+      "state": "Rajasthan",
+      "district": { "id": "rajasthan-jodhpur", "name": "Jodhpur" },
+      "town": "Jodhpur",
+      "local_body": { "id": "jodhpur-mc", "name": "Jodhpur Municipal Corporation", "head_office": "Commissioner" },
+      "ward": null,
+      "assembly_seat": { "id": "s20-ac-127", "name": "Sardarpura" },
+      "loksabha_seat": { "id": "s20-pc-16", "name": "Jodhpur", "status": "current" },
+      "representatives": [
+        { "office": "mla", "seat_id": "s20-ac-127", "as_of": "2026-10-01", "source": "https://eci.gov.in/" },
+        { "office": "mp", "seat_id": "s20-pc-16", "as_of": "2026-10-01", "source": "https://sansad.in/ls" }
+      ]
+    },
+    "brands": [],
+    "first_reported_at": "2026-10-08T05:00:00Z",
+    "last_reported_at": "2026-10-10T02:50:00Z",
+    "cleaned_at": "2026-10-09T06:21:40Z",
+    "pilot": true,
+    "reporters": 4,
+    "insights": {
+      "reports": 5,
+      "composition": [
+        { "material": "plastic", "share_pct": 46, "reports": 5, "sources": [{ "signal": "yolo", "provider": "dirtpolice", "model": "yolo-junk-s", "version": "v1" }] },
+        { "material": "organic", "share_pct": 31, "reports": 4, "sources": [{ "signal": "yolo", "provider": "dirtpolice", "model": "yolo-junk-s", "version": "v1" }] },
+        { "material": "medical", "share_pct": 3, "reports": 1, "sources": [{ "signal": "yolo", "provider": "dirtpolice", "model": "yolo-junk-s", "version": "v1" }] }
+      ],
+      "size_class": { "value": "small", "reports": 5, "sources": [{ "signal": "yolo", "provider": "dirtpolice", "model": "yolo-junk-s", "version": "v1" }] },
+      "hazards": [
+        { "hazard": "medical_waste", "reports": 1, "sources": [{ "signal": "yolo", "provider": "dirtpolice", "model": "yolo-junk-s", "version": "v1" }] }
+      ],
+      "near": [
+        { "kind": "drain", "distance_m": 2, "ref": "osm:way/100000002",
+          "source": { "source_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%3Bway%5B%22waterway%22%3D%22drain%22%5D%3Bout%20skel%20geom%3B", "fetched_at": "2026-10-10T01:00:00Z", "page_sha256": "1cb01cf99d3403eb60bea2d899cbfbe7139fa8f20486f623f7e34eb893415ed4" } },
+        { "kind": "school", "distance_m": 64, "ref": "osm:node/100000003",
+          "source": { "source_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%3Bnwr%5B%22amenity%22%3D%22school%22%5D%3Bout%20skel%20center%3B", "fetched_at": "2026-10-10T01:00:00Z", "page_sha256": "2ae5a2771bde61c8dc657c12582342078fb3d03ff191b77bd0ec89ce124b2af3" } }
+      ],
+      "nearest_bin": { "distance_m": 960, "ref": "osm:node/100000008", "source": { "source_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%3Bnwr%5B%22amenity%22%3D%22waste_basket%22%5D%3Bout%20skel%20center%3B", "fetched_at": "2026-10-10T01:00:00Z", "page_sha256": "5d2f0b8c1e7a4f3b9c6d1e2a8b7c4d5e6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c" } },
+      "no_bin_within_3km": false
+    }
+  }
+}

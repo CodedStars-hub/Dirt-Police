@@ -1,0 +1,58 @@
+{
+  "type": "Feature",
+  "geometry": { "type": "Point", "coordinates": [73.0352, 26.3049] },
+  "properties": {
+    "site_id": "site_jdh_2",
+    "report_type": "no_bin",
+    "context": "no_pickup",
+    "status": "open",
+    "verification": "verified",
+    "report_count": 3,
+    "verified_count": 3,
+    "corroborations": 8,
+    "zone_radius_m": 1000,
+    "backers": { "count": 10, "needed": 10, "photo_people": 3, "vote_people": 7 },
+    "votes": { "confirm": 7, "reject": 0 },
+    "photo_urls": ["https://d111111abcdef8.cloudfront.net/media/reports/rpt_jdh_2.jpg"],
+    "cleanup_status": "none",
+    "cleanup_photo_url": null,
+    "burning": false,
+    "location": {
+      "state": "Rajasthan",
+      "district": { "id": "rajasthan-jodhpur", "name": "Jodhpur" },
+      "town": "Jodhpur",
+      "local_body": { "id": "jodhpur-mc", "name": "Jodhpur Municipal Corporation", "head_office": "Commissioner" },
+      "ward": null,
+      "assembly_seat": { "id": "s20-ac-127", "name": "Sardarpura" },
+      "loksabha_seat": { "id": "s20-pc-16", "name": "Jodhpur", "status": "current" },
+      "representatives": [
+        { "office": "mla", "seat_id": "s20-ac-127", "as_of": "2026-10-01", "source": "https://eci.gov.in/" },
+        { "office": "mp", "seat_id": "s20-pc-16", "as_of": "2026-10-01", "source": "https://sansad.in/ls" }
+      ]
+    },
+    "brands": [],
+    "first_reported_at": "2026-10-09T04:05:00Z",
+    "last_reported_at": "2026-10-10T03:20:00Z",
+    "cleaned_at": null,
+    "pilot": true,
+    "reporters": 3,
+    "insights": {
+      "reports": 3,
+      "composition": [
+        { "material": "organic", "share_pct": 45, "reports": 3, "sources": [
+          { "signal": "vision_judge", "provider": "bedrock", "model": "global.anthropic.claude-sonnet-4-6", "version": "4.6" }
+        ] },
+        { "material": "plastic", "share_pct": 40, "reports": 3, "sources": [
+          { "signal": "rekognition_labels", "provider": "rekognition", "model": "DetectLabels", "version": "3.0" }
+        ] }
+      ],
+      "size_class": { "value": "small", "reports": 3, "sources": [
+        { "signal": "vision_judge", "provider": "bedrock", "model": "global.anthropic.claude-sonnet-4-6", "version": "4.6" }
+      ] },
+      "hazards": [],
+      "near": [],
+      "nearest_bin": { "distance_m": 4210, "ref": "osm:node/100000007", "source": { "source_url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%3Bnwr%5B%22amenity%22%3D%22waste_basket%22%5D%3Bout%20skel%20center%3B", "fetched_at": "2026-10-10T01:00:00Z", "page_sha256": "5d2f0b8c1e7a4f3b9c6d1e2a8b7c4d5e6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c" } },
+      "no_bin_within_3km": true
+    }
+  }
+}
