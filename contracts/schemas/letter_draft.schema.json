@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/CodedStars-hub/Dirt-Police/main/contracts/schemas/letter_draft.schema.json",
+  "title": "letter_draft",
+  "description": "A cited letter draft from POST /sites/{id}/letters, for any open site, verified or not. Addressed by office only, neutral wording. Nothing is filed automatically; the resident files it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["letter_id", "site_id", "channel", "to", "cc", "subject", "body", "language", "citations", "verifier", "template_fallback", "filing_url", "provider", "model", "version", "created_at", "evidence"],
+  "properties": {
+    "letter_id": { "type": "string", "pattern": "^ltr_[a-z0-9_]{1,40}$" },
+    "site_id": { "type": "string", "pattern": "^site_[a-z0-9_]{1,40}$" },
+    "channel": {
+      "enum": ["local_body", "pollution_board", "district_collector", "cpgrams", "swachhata", "rajasthan_sampark"],
+      "description": "Who the letter is for. local_body for every type; pollution_board for burning, water and construction dust; rajasthan_sampark only in Rajasthan."
+    },
+    "to": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["office", "body"],
+      "description": "For local_body, the head of the local body, legally responsible under the 74th Amendment.",
+      "properties": {
+        "office": { "type": "string", "description": "For example Commissioner." },
+        "body": { "type": "string", "description": "For example Jodhpur Municipal Corporation (South)." }
+      }
+    },
+    "cc": {
+      "type": "array",
+      "description": "Councillor only when the site has a ward, MLA only when it has an assembly seat, MP only when the Lok Sabha seat status is not outdated.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["office", "seat", "marking"],
+        "properties": {
+          "office": { "enum": ["councillor", "mla", "mp"] },
+          "seat": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "name"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9-]{1,64}$" },
+              "name": { "type": "string" }
+            }
+          },
+          "marking": { "const": "for attention" }
+        }
+      }
+    },
+    "subject": { "type": "string", "maxLength": 200 },
+    "body": { "type": "string", "description": "Letter prose. May be regional; quotes inside stay in the official English or Hindi." },
+    "language": { "enum": ["en", "hi"] },
+    "citations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "document", "clause", "quote", "source_sha256", "verified"],
+        "properties": {
+          "rule_id": { "type": "string", "pattern": "^[a-z0-9-]{1,64}$", "description": "Id in the hand-checked rules JSON." },
+          "document": { "type": "string" },
+          "clause": { "type": "string" },
+          "quote": { "type": "string" },
+          "source_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of the official PDF the rule comes from." },
+          "verified": { "const": true, "description": "The quote appears word for word in that text. A draft with any unverified quote is never returned; the template letter is used instead." }
+        }
+      }
+    },
+    "verifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verified", "total"],
+      "description": "Shown as: verified <verified> of <total>. verified must equal total and the length of citations; the schema cannot compare them, so contract tests do.",
+      "properties": {
+        "verified": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "template_fallback": { "type": "boolean", "description": "True when the model draft failed verification and the template letter, with the same verified citations, was used." },
+    "filing_url": { "type": ["string", "null"], "format": "uri", "description": "Where the resident can file it, for portal channels; null for a printed letter." },
+    "provider": { "enum": ["bedrock", "openai", "openrouter", "rekognition", "comprehend", "dirtpolice"], "description": "dirtpolice with model letter-template when template_fallback is true." },
+    "model": { "type": "string" },
+    "version": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report_count", "reporters", "verified_count", "first_reported_at", "last_reported_at", "photo_urls", "insights", "nearest_bin", "no_bin_within_3km"],
+      "description": "What the letter rests on, for the app to show and print with it: counts, dates, blurred photo links and the measured insights. Copied from the site when the draft is made.",
+      "properties": {
+        "report_count": { "type": "integer", "minimum": 1 },
+        "reporters": { "type": ["integer", "null"], "minimum": 1, "description": "Distinct people who reported the site; null on sites from before it was counted." },
+        "verified_count": { "type": "integer", "minimum": 0 },
+        "verification": {
+          "enum": ["unverified", "verified"],
+          "description": "Contracts v1.17 (decision 20261011-1750-hem-letters-any-site): site.verification when the draft was made. Any open site takes a letter; for an unverified one the letter says how many people backed it so far and never calls it verified. Not in required so older drafts stay valid; the api always sends it."
+        },
+        "backers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["count", "needed"],
+          "description": "Contracts v1.17: site.backers when the draft was made, the people who backed the site by photo or yes vote (each once) and the 10 needed to verify it. Not in required so older drafts stay valid; the api always sends it.",
+          "properties": {
+            "count": { "type": "integer", "minimum": 0 },
+            "needed": { "const": 10 }
+          }
+        },
+        "first_reported_at": { "type": "string", "format": "date-time" },
+        "last_reported_at": { "type": "string", "format": "date-time" },
+        "photo_urls": { "type": "array", "maxItems": 6, "items": { "type": "string", "format": "uri" }, "description": "Blurred public copies only." },
+        "insights": {
+          "description": "The site's measured insights used in the letter; null when the site has none.",
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["reports", "composition", "size_class", "hazards", "near"],
+              "properties": {
+                "reports": { "type": "integer", "minimum": 0 },
+                "composition": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["material", "share_pct", "reports"],
+                    "properties": {
+                      "material": { "type": "string" },
+                      "share_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+                      "reports": { "type": "integer", "minimum": 1 }
+                    }
+                  }
+                },
+                "size_class": { "enum": ["small", "medium", "large", null] },
+                "hazards": { "type": "array", "items": { "type": "string" } },
+                "near": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "distance_m"],
+                    "properties": {
+                      "kind": { "enum": ["school", "hospital", "water", "drain"] },
+                      "distance_m": { "type": "number", "minimum": 0 }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "nearest_bin": {
+          "description": "The site's nearest known bin or collection point, given for waste_dump and no_bin sites; null otherwise or when none is known.",
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["distance_m", "ref", "source_url"],
+              "properties": {
+                "distance_m": { "type": "number", "minimum": 0 },
+                "ref": { "type": "string" },
+                "source_url": { "type": "string", "pattern": "^https?://" }
+              }
+            }
+          ]
+        },
+        "no_bin_within_3km": { "type": ["boolean", "null"], "description": "As site.insights.no_bin_within_3km, for waste_dump and no_bin sites; null otherwise." },
+        "residents": {
+          "description": "The \"Residents report\" line: the site's community signals and how many people they rest on. The letter paraphrases them and never quotes a note. Null when the site has no accepted notes; not in required so older drafts stay valid.",
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["people", "signals"],
+              "properties": {
+                "people": { "type": "integer", "minimum": 1 },
+                "signals": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["duration_days", "recurring", "burning", "smell", "blocked_drain", "animals", "near_school", "near_hospital", "access_issue"],
+                "description": "What residents' notes say, as structured and neutral signals. Each is true only when at least one moderated note says so.",
+                "properties": {
+                  "duration_days": { "type": ["integer", "null"], "minimum": 0, "description": "How long residents say the problem has existed, in days (about 90 for about 3 months); null when no note says." },
+                  "recurring": { "type": ["boolean", "null"], "description": "Cleared before and comes back; null when no note says either way." },
+                  "burning": { "type": "boolean", "description": "Burning or smoke." },
+                  "smell": { "type": "boolean" },
+                  "blocked_drain": { "type": "boolean", "description": "A blocked drain or standing water." },
+                  "animals": { "type": "boolean", "description": "Stray animals, rats, flies or mosquitoes." },
+                  "near_school": { "type": "boolean", "description": "A nearby school is mentioned." },
+                  "near_hospital": { "type": "boolean", "description": "A nearby hospital or clinic is mentioned." },
+                  "access_issue": { "type": "boolean", "description": "The waste blocks a road, lane, footpath or entrance." }
+                }
+              }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
