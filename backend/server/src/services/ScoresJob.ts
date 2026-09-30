@@ -1,0 +1,115 @@
+import { AreaKey } from "../domain/AreaKey.js";
+import type { AreaSite } from "../domain/AreaSite.js";
+import { AreaSites } from "../domain/AreaSites.js";
+import type { AreaFacts } from "../ports/AreaFacts.js";
+import type { AreaReportReader } from "../ports/AreaReportReader.js";
+import type { AreaSiteReader, UnreadableSite } from "../ports/AreaSiteReader.js";
+import type { Logger } from "../ports/Logger.js";
+import type { ScoreRepository } from "../ports/ScoreRepository.js";
+import type { SiteExpirer } from "../ports/SiteExpirer.js";
+import type { AreaGroup, AreaGrouper } from "./AreaGrouper.js";
+import type { ScoreCalculator } from "./ScoreCalculator.js";
+
+export interface ScoresJobPorts {
+  readonly sites: AreaSiteReader;
+  readonly reports: AreaReportReader;
+  readonly facts: AreaFacts;
+  readonly scores: ScoreRepository;
+  readonly expirer: SiteExpirer;
+}
+
+export interface ScoresRunSummary {
+  readonly sites: number;
+  readonly areas: number;
+  // Failed areas plus site items and ward records skipped for breaking their contracts.
+  readonly failed: number;
+}
+
+type ReportTimes = Map<string, Promise<number[]>>;
+
+// One CronJob run: recompute every area that holds a site and overwrite its row; one failing area never stops the rest.
+export class ScoresJob {
+  readonly #ports: ScoresJobPorts;
+  readonly #calculator: ScoreCalculator;
+  readonly #grouper: AreaGrouper;
+  readonly #logger: Logger;
+
+  constructor(ports: ScoresJobPorts, calculator: ScoreCalculator, grouper: AreaGrouper, logger: Logger) {
+    this.#ports = ports;
+    this.#calculator = calculator;
+    this.#grouper = grouper;
+    this.#logger = logger;
+  }
+
+  async run(now: Date): Promise<ScoresRunSummary> {
+    const read = await this.#ports.sites.readAll();
+    const skipped = this.#logSkipped(read.unreadable);
+    const sites = await this.#expireLapsed(read.sites, now);
+    const groups = this.#grouper.group(sites);
+    const times: ReportTimes = new Map();
+    let failed = 0;
+    for (const group of groups) {
+      const area = AreaKey.of(group.area).toString();
+      try {
+        await this.#score(group, times, now);
+      } catch (error) {
+        failed += 1;
+        this.#logger.error({ area, error }, "area scoring failed");
+      }
+    }
+    return { sites: sites.length, areas: groups.length, failed: failed + skipped };
+  }
+
+  // Decision 20261010-1855: lapsed sites are marked expired first, so they leave this run's scores.
+  async #expireLapsed(sites: readonly AreaSite[], now: Date): Promise<AreaSite[]> {
+    const current: AreaSite[] = [];
+    for (const site of sites) {
+      current.push(site.isLapsedAt(now) ? await this.#expire(site, now) : site);
+    }
+    return current;
+  }
+
+  // A refreshed site keeps counting; a failed write is retried on the next run, and the site reads as expired meanwhile.
+  async #expire(site: AreaSite, now: Date): Promise<AreaSite> {
+    try {
+      if (!(await this.#ports.expirer.expire(site.id, now))) {
+        return site;
+      }
+      this.#logger.info({ site_id: site.id }, "site expired");
+    } catch (error) {
+      this.#logger.error({ site_id: site.id, error }, "site expiry failed");
+    }
+    return site.expired();
+  }
+
+  #logSkipped(unreadable: readonly UnreadableSite[]): number {
+    for (const { siteId, error } of unreadable) {
+      this.#logger.error({ site_id: siteId, error }, "site skipped");
+    }
+    const records = this.#ports.facts.skippedRecords();
+    for (const { file, recordId, error } of records) {
+      this.#logger.error({ file, ward_record_id: recordId, error }, "ward record skipped");
+    }
+    return unreadable.length + records.length;
+  }
+
+  async #score({ area, sites }: AreaGroup, times: ReportTimes, now: Date): Promise<void> {
+    const timed: AreaSite[] = [];
+    for (const site of sites) {
+      timed.push(await this.#withReportTimes(site, times));
+    }
+    const held = new AreaSites(sites);
+    const facts = await this.#ports.facts.factsFor(AreaKey.of(area), held.localBodies());
+    await this.#ports.scores.save(this.#calculator.calculate({ area, sites: timed, facts, now }), held.within());
+  }
+
+  // Each site's reports are read once, however many areas hold it; a failed read fails every one of those areas.
+  async #withReportTimes(site: AreaSite, times: ReportTimes): Promise<AreaSite> {
+    if (!site.isVerified() || site.verifiedReports() === 0) {
+      return site;
+    }
+    const cached = times.get(site.id) ?? this.#ports.reports.verifiedReportTimes(site.id);
+    times.set(site.id, cached);
+    return site.withReportTimes(await cached);
+  }
+}
