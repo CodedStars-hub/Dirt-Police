@@ -1,0 +1,15 @@
+# dirtpolice-server
+
+One TypeScript image, three entry points: `api` (default, `node dist/handlers/web.js`, port 8000), `worker` (`node dist/handlers/worker.js`) and `scores` (`node dist/handlers/scores.js`). Verify: `npm ci; npm run lint; npm run typecheck; npm test; npm run build`. Local: `DIRTPOLICE_STAGE=dev npm run dev:web`.
+
+1. Routes: write `src/handlers/<topic>Routes.ts` exporting `build<Topic>Routes(context: RouteContext): FastifyPluginAsync`. It loads its settings, builds adapters, then services, and returns the plugin. Add one import and one line to `ROUTE_BUILDERS` in `src/handlers/routes.ts`. Never add routes to `web.ts`.
+2. Settings: write `src/settings/<Topic>Settings.ts`, a class with readonly fields and `static fromEnv(env: Env)` that calls `parseEnv(zodSchema, env)` with the exact variable names from `contracts/README.md`; the builder passes `context.env`. Never add task fields to `CoreSettings`.
+3. Errors: throw `DirtPoliceError` subclasses; a new contract code is `class XError extends NotFoundError { override readonly code: ErrorCode = "area_not_found"; }` and the status follows. Bad stored, internal or outbound data is `InternalDataError` (500 `server_error`).
+4. Contract validators (`validateSite()` and friends in `src/contracts/index.gen.ts`) are for request bodies and inbound messages only, and throw 400 `ValidationError`; call them only from handlers and adapters, never as Fastify route schemas (Fastify's Ajv is draft-07). After a schema change run `npm run gen:contracts` and commit the `.gen.ts` files.
+5. Contract types (`import type { Site } from "../contracts/index.gen.js"`) may be imported in any layer.
+6. Logs: services take the `Logger` port; inside a route plugin pass `app.log`. Entry points run through `EntryPoint`, which logs failures as one JSON line and exits 1. Never log images, tokens or names.
+7. Sign-in: in your builder, `const guard = RouteGuard.fromEnv(context.env)` (from `handlers/auth/RouteGuard.ts`; needs `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` and `USERS_TABLE`, read to refuse blocked users).
+   Routes that create reports, scans, votes, cleanups or letters call `const user = await guard.requireUser(request)` (401 `unauthorized` without a valid Cognito ID token); browsing routes call `await guard.optionalUser(request)` (undefined for a guest or a bad or expired token, so browsing never 401s; a blocked user still gets 403).
+   Key data by `user.userId` (the token `sub`), never by email. A user who does not own an item gets `NotFoundError` (404 `not_found`), as if it were missing; `ForbiddenError` (403 `forbidden`) is only for a user blocked in the `users` table.
+8. Data files: read `data/{boundaries,representatives,brands,rules,wards}` through the `AssetReader` port (`FileAssetReader` rooted at `AssetSettings.assetsDir`); no build step derives anything from them.
+9. `ASSETS_DIR` defaults to `../../data` from the working directory (the repo's `data/` when run from `backend/server`); the image sets `ASSETS_DIR=/app/data` (contracts v1.2).

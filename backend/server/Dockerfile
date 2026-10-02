@@ -1,0 +1,39 @@
+# One image, three entry points:
+#   api (default):  node dist/handlers/web.js
+#   worker:         node dist/handlers/worker.js
+#   scores CronJob: node dist/handlers/scores.js
+FROM node:24-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY tsconfig.json tsconfig.build.json ./
+COPY src ./src
+RUN npm run build
+
+# Placeholder for the "data" build context, so a build without --build-context fails instead of pulling an image named data.
+FROM scratch AS data
+
+FROM node:24-slim
+ENV NODE_ENV=production
+WORKDIR /app
+# The worker cuts scan videos into frames with ffmpeg: one static binary, pinned by digest, far smaller than Debian's.
+COPY --from=mwader/static-ffmpeg:9.0.2@sha256:7d9bdaaf887f7e6ce6151f67325c344074b5ff1fb75316011c3376503e449a7b /ffmpeg /usr/local/bin/
+# Dependencies first, so code changes reuse this layer; sharp's linux-x64 binary comes from the lockfile.
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
+COPY --from=build /app/dist ./dist
+
+# Runtime data from the repo's data/, passed as the named build context "data" (scripts/deploy.py):
+#   docker build --build-context data=../../data .
+# Only the folders the server reads; wards* also matches nothing until the ward crawler's files land.
+COPY --from=data boundaries /app/data/boundaries
+COPY --from=data representatives /app/data/representatives
+COPY --from=data rules /app/data/rules
+COPY --from=data brands /app/data/brands
+COPY --from=data wards* /app/data/wards/
+ENV ASSETS_DIR=/app/data
+
+# Numeric user and group, so Kubernetes runAsNonRoot can verify them.
+USER 10001:10001
+EXPOSE 8000
+CMD ["node", "dist/handlers/web.js"]
