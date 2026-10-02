@@ -1,0 +1,79 @@
+"""Fixed-weight combiner (v0): a weighted mean of signal scores, before the meta-learner."""
+
+from collections.abc import Mapping, Sequence
+from types import MappingProxyType
+from typing import override
+
+from ml.domain.case import CombinerInfo
+from ml.domain.errors import ConfigError
+from ml.domain.linear import TRAINED_REPORT_TYPES
+from ml.domain.purposes import Purpose
+from ml.domain.verification import Claim, Outcome, SignalResult, Thresholds
+from ml.services.combiner_base import Combiner
+from ml.services.judge_decides_combiner import AUTO_CLAIM_REASON, JudgeDecidesCombiner
+
+# Hand-set, not fitted (ML_WEIGHT_<SIGNAL>). The judge runs on every case and weighs most.
+FIXED_WEIGHTS: Mapping[str, float] = MappingProxyType(
+    {"rekognition_labels": 0.4, "yolo": 0.3, "embedding_classifier": 0.3, "vision_judge": 0.6}
+)
+# Two scores this far apart on 0..1 strongly disagree (ML_DISAGREEMENT_GAP).
+DISAGREEMENT_GAP = 0.5
+JUDGE_SIGNAL = "vision_judge"
+
+
+class FixedWeightCombiner(Combiner):
+    KIND = "fixed_weights"
+    VERSION = "fw-v0"
+
+    def __init__(
+        self,
+        thresholds: Thresholds,
+        weights: Mapping[str, float] = FIXED_WEIGHTS,
+        disagreement_gap: float = DISAGREEMENT_GAP,
+    ) -> None:
+        self._thresholds = thresholds
+        self._weights = dict(weights)
+        self._gap = disagreement_gap
+
+    @property
+    def thresholds(self) -> Thresholds:
+        return self._thresholds
+
+    def info(self) -> CombinerInfo:
+        return CombinerInfo(kind=self.KIND, version=self.VERSION)
+
+    @override
+    def for_claim(self, claim: Claim, signals: Sequence[SignalResult] = ()) -> Combiner:
+        """An auto claim, or a type no model was trained on, needs the judge's answer.
+
+        Without it such a claim gets 0.5 (decision 0005), as on the meta-learner's path.
+        """
+        if claim.judge_required:
+            return JudgeDecidesCombiner(self, AUTO_CLAIM_REASON)
+        if claim.report_type not in TRAINED_REPORT_TYPES:
+            reason = f"no trained model for {claim.report_type}; judge decides"
+            return JudgeDecidesCombiner(self, reason)
+        return self
+
+    def probability(self, signals: Sequence[SignalResult]) -> float:
+        """Neutral signals cannot see the claim, so they count as absent, not as 0.5."""
+        counted = [s for s in signals if not s.neutral] or list(signals)
+        weights = [self._weight(signal.name) for signal in counted]
+        if not counted or sum(weights) <= 0:
+            raise ConfigError("the combiner needs at least one weighted signal")
+        total = sum(weight * signal.score for weight, signal in zip(weights, counted, strict=True))
+        return total / sum(weights)
+
+    def disagree(self, signals: Sequence[SignalResult]) -> bool:
+        scores = [signal.score for signal in signals if not signal.neutral]
+        return len(scores) > 1 and max(scores) - min(scores) >= self._gap
+
+    def combine(self, signals: Sequence[SignalResult], purpose: Purpose) -> Outcome:
+        judged = any(signal.name == JUDGE_SIGNAL for signal in signals)
+        probability = self.probability(signals)
+        return purpose.outcome(probability, self.disagree(signals), self._thresholds, judged)
+
+    def _weight(self, name: str) -> float:
+        if name not in self._weights:
+            raise ConfigError(f"no fixed weight for signal {name!r}")
+        return self._weights[name]
