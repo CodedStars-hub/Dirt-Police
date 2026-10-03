@@ -1,0 +1,19 @@
+import type { NoteRequest, SiteNote } from '../domain/Community';
+import type { PhotoFlagRequest, PhotoFlagResult } from '../domain/PhotoFlag';
+import type { CleanupAccepted, CleanupRequest, LetterDraft, LetterRequest, VoteRequest, VoteResult, WithdrawalResult } from '../domain/SiteActions';
+
+/** POST /sites/{id}/votes, /cleanup and /letters. All need sign-in; failures reject with ApiError. */
+export interface SiteActionsApi {
+  /** 403 own_site for the reporter; 403 too_far beyond 1 km. */
+  vote(siteId: string, request: VoteRequest): Promise<VoteResult>;
+  /** 409 cleanup_pending or already_cleaned. */
+  cleanup(siteId: string, request: CleanupRequest): Promise<CleanupAccepted>;
+  /** Up to 60 s. 409 not_verified, 422 no_local_body, 429 rate_limited. */
+  letter(siteId: string, request: LetterRequest): Promise<LetterDraft>;
+  /** 201 site_note; hidden when moderation removed it. 429 rate_limited after 10 an hour. */
+  note(siteId: string, request: NoteRequest): Promise<SiteNote>;
+  /** DELETE /sites/{id}/reports/mine. 404 not_found when the user has no report there, 409 site_verified, 429 rate_limited. */
+  withdraw(siteId: string): Promise<WithdrawalResult>;
+  /** POST /sites/{id}/photos/{photo}/flags. 403 own_photo for the photo's reporter, 403 too_far beyond 1 km, 404 not_found, 429 rate_limited. */
+  flagPhoto(siteId: string, photoId: string, request: PhotoFlagRequest): Promise<PhotoFlagResult>;
+}
