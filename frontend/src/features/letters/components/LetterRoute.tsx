@@ -1,0 +1,49 @@
+import { useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router';
+import { sitePath } from '../../../app/paths';
+import { useSheetNavigation } from '../../../app/useSheetNavigation';
+import { useServices } from '../../../app/useServices';
+import { useShareLinks } from '../../../app/useShareLinks';
+import { BottomSheet } from '../../../ui/BottomSheet';
+import { useSiteRouteGate } from '../../actions/hooks/useRouteGates';
+import '../../../ui/form.css';
+import { useLetter } from '../hooks/useLetter';
+import '../letters.css';
+import { LetterActions } from './LetterActions';
+import { LetterStart } from './LetterStart';
+import { LetterEvidence } from './LetterEvidence';
+import { LetterView } from './LetterView';
+import { UnverifiedNote } from './UnverifiedNote';
+import type { LetterText } from '../LetterText';
+
+const TITLE_ID = 'letter-title';
+
+/** "Draft for you to file": a cited letter the resident prints, saves as PDF or copies. */
+export function LetterRoute() {
+  const { t } = useTranslation();
+  const { config } = useServices();
+  const { siteId = '' } = useParams();
+  const links = useShareLinks();
+  const sheets = useSheetNavigation();
+  const close = useCallback(() => sheets.close(sitePath(siteId)), [sheets, siteId]);
+  const flow = useLetter(siteId);
+  const { locked, site } = useSiteRouteGate(siteId, 'letter');
+  const { draft } = flow;
+  const evidence = (text: LetterText) => draft?.evidence && <LetterEvidence evidence={draft.evidence} text={text} language={draft.language} />;
+  return (
+    <BottomSheet labelledBy={TITLE_ID} closeLabel={t('letter.close')} resizeLabel={t('sheet.resize')} onClose={close} initial="full" focusKey={draft?.letter_id}>
+      <h2 id={TITLE_ID} className="sheet-title" tabIndex={-1}>
+        {t('letter.title')}
+      </h2>
+      <p className="letter-banner">{t('letter.noAutoSend')}</p>
+      {config.isSampleData() && <p className="form__note">{t('letter.sample')}</p>}
+      <UnverifiedNote site={site} draft={draft} locked={locked !== null} />
+      {!draft && <LetterStart flow={flow} locked={locked} onBack={close} />}
+      {draft && <LetterView draft={draft} evidence={evidence} />}
+      {draft && <LetterActions draft={draft} onReset={flow.reset} link={links.site(siteId)} />}
+      {draft && createPortal(<LetterView draft={draft} evidence={evidence} forPrint />, document.body)}
+    </BottomSheet>
+  );
+}
