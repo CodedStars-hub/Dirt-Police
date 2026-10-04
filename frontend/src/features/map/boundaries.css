@@ -1,0 +1,198 @@
+/* Map areas legend, area card and marker tooltip. Tokens only; the map fills mirror them (AreaTints, ChoroplethScale). */
+.map-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--s-2);
+}
+
+/* The legend sits behind a "Legend" chip at the map's lower left (LegendToggle); open, it rises above the chip. */
+.legend-toggle {
+  position: absolute;
+  /* The map foot clears MapLibre's credit button in the corner below. */
+  bottom: var(--map-foot);
+  left: var(--edge);
+  z-index: 2;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+
+/*
+  The hint sits beside the chip, or on its own line just above it when the two do not fit (most phones up to
+  390 px); the row stops 64 px short of the edge, so neither reaches the map buttons.
+*/
+.legend-toggle__row {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: center;
+  gap: var(--s-2);
+  max-width: calc(100vw - 2 * var(--edge) - 64px);
+}
+
+.legend-toggle__chip {
+  flex: none;
+}
+
+/* Always visible, open or folded: scores are never shown on thin evidence. A pill on one line, soft if it wraps. */
+.legend-toggle__caveat {
+  min-width: 0;
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+}
+
+.legend-toggle--open .legend-toggle__chip {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.boundary-legend {
+  display: grid;
+  animation: pop-in var(--dur-3) var(--spring);
+  transform-origin: bottom left;
+  gap: var(--s-1);
+  max-width: min(240px, calc(100vw - 2 * var(--edge) - 64px));
+  padding: var(--s-3);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.boundary-legend__ramp {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.map-page--card .legend-toggle {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .map-page--sheet .legend-toggle {
+    display: none;
+  }
+}
+
+/* Desktop: the map starts after the side panel, so the legend does too. */
+@media (min-width: 1024px) {
+  .legend-toggle {
+    /* Clear of MapLibre's credit button in the corner. */
+    bottom: calc(var(--edge) + var(--s-6));
+    left: calc(var(--panel-width) + var(--edge));
+  }
+}
+
+/* A dashed outline: a Lok Sabha seat drawn from boundaries older than its re-delimitation. */
+.boundary-legend__dash {
+  flex: none;
+  width: 16px;
+  border-top: 2px dashed var(--text-secondary);
+}
+
+.marker-key__glyph {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+
+/* Pins in the legend: the map's own images, with the sun "n/10" sticker under the dashed one. */
+.pin-key__pin {
+  flex: none;
+}
+
+.pin-key__unverified {
+  display: inline-grid;
+  flex: none;
+  justify-items: center;
+  width: 24px;
+}
+
+.pin-key__badge {
+  margin-top: calc(-1 * var(--s-1));
+  padding: 0 2px;
+  border-radius: var(--radius-xs);
+  background: var(--sun);
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 12px;
+}
+
+/* Hover tooltip on area markers (MapLibre popup). */
+.area-tooltip .maplibregl-popup-content {
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-float);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+/* Area tints in the legend: small chips, each a pale wash of its tint with a ring of it, as on the map. */
+.tint-key {
+  display: inline-grid;
+  flex: none;
+  grid-template-columns: repeat(4, 8px);
+  gap: 2px;
+}
+
+.tint-key__swatch {
+  width: 8px;
+  height: 8px;
+  border: 1px solid color-mix(in srgb, var(--swatch) 55%, var(--surface));
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--swatch) 15%, var(--surface));
+}
+
+.tint-key__swatch--1 { --swatch: var(--area-tint-1); }
+.tint-key__swatch--2 { --swatch: var(--area-tint-2); }
+.tint-key__swatch--3 { --swatch: var(--area-tint-3); }
+.tint-key__swatch--4 { --swatch: var(--area-tint-4); }
+.tint-key__swatch--5 { --swatch: var(--area-tint-5); }
+.tint-key__swatch--6 { --swatch: var(--area-tint-6); }
+.tint-key__swatch--7 { --swatch: var(--area-tint-7); }
+.tint-key__swatch--8 { --swatch: var(--area-tint-8); }
+
+/* The thick outline round the area in focus (FocusLineLayer). */
+.tint-key__focus {
+  flex: none;
+  width: 16px;
+  border-top: 3px solid var(--accent);
+}
+
+/* The card after tapping an area: a swatch of its map tint (TintSwatch) where a pin's card shows the photo.
+   It follows a finger down and a swipe closes it (useMapCard, --card-drag), like the pin card. */
+.preview-card.area-card {
+  touch-action: none;
+  transform: translateY(var(--card-drag, 0px));
+  transition: transform var(--dur-3) var(--spring);
+}
+
+.preview-card.area-card.is-dragging {
+  transition: none;
+}
+
+.area-card__lines {
+  display: grid;
+  margin-top: var(--s-1);
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.area-card__lines strong {
+  color: var(--text);
+  font-weight: 600;
+}
