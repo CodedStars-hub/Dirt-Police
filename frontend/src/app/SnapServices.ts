@@ -1,0 +1,42 @@
+import type { ActivityRemover } from '../services/ActivityRemover';
+import type { ActivitySync } from '../services/ActivitySync';
+import type { AreaLetterService } from '../services/AreaLetterService';
+import type { CameraCapture } from '../services/CameraCapture';
+import type { CompassHeading } from '../services/CompassHeading';
+import type { ScanCapture } from '../services/ScanCapture';
+import type { GpsWatcher } from '../services/GpsWatcher';
+import type { NoBinReporter } from '../services/NoBinReporter';
+import type { ImageEncoder } from '../services/PhotoEncoder';
+import type { PhotoHasher } from '../services/PhotoHasher';
+import type { ReportConfirmer } from '../services/ReportConfirmer';
+import type { ReportQueue } from '../services/ReportQueue';
+import type { ReportTracker } from '../services/ReportTracker';
+import type { ScanQueue } from '../services/ScanQueue';
+import type { ScanTracker } from '../services/ScanTracker';
+import type { SiteActionService } from '../services/SiteActionService';
+import type { VideoRecorder } from '../services/VideoRecorder';
+
+/** Everything the Snap, Scan and Activity screens use. */
+export interface SnapServices {
+  readonly queue: ReportQueue;
+  readonly tracker: ReportTracker;
+  /** The reporter's answer when the check was unsure (contracts v1.16). */
+  readonly confirmer: ReportConfirmer;
+  /** Brings Activity in line with the user's reports on the server (GET /me/reports) when its token is stale. */
+  readonly activity: ActivitySync;
+  readonly scans: ScanQueue;
+  readonly scanTracker: ScanTracker;
+  readonly recorder: VideoRecorder;
+  readonly scanCapture: ScanCapture;
+  readonly camera: CameraCapture;
+  readonly encoder: ImageEncoder;
+  readonly hasher: PhotoHasher;
+  readonly gps: GpsWatcher;
+  readonly siteActions: SiteActionService;
+  readonly areaLetters: AreaLetterService;
+  readonly noBin: NoBinReporter;
+  /** Deletes Activity rows, withdrawing reports from unverified sites first (decision 20261010-1700). */
+  readonly remover: ActivityRemover;
+  /** The phone's heading for the long-range direction line; absent where there is no window (tests). */
+  readonly compass?: CompassHeading;
+}
