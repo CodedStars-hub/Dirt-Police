@@ -1,0 +1,625 @@
+/* Site sheet, preview card, site rows. Spacing from the 4 px scale in ui/tokens.css. */
+
+/* Illustrated type chips: the pin glyph on a soft tint of its colour, in a rounded tile. */
+.type-chip {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-s);
+  background: var(--tile);
+}
+
+.type-chip--small {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+}
+
+.type-chip--waste_dump {
+  background: var(--type-dump-tint);
+}
+
+.type-chip--no_bin {
+  background: var(--type-nobin-tint);
+}
+
+.type-chip--contaminated_water {
+  background: var(--type-water-tint);
+}
+
+.type-chip--open_construction {
+  background: var(--type-construction-tint);
+}
+
+.type-chip--overflowing_bin {
+  background: var(--type-overflowing-tint);
+}
+
+.site-header__title {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.site-header__title .type-chip {
+  animation: chip-hop var(--dur-spring) var(--spring-bouncy);
+}
+
+.site-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.site-header__context {
+  margin-top: var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.site-header .badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Action row: round tiles with labels; the primary one is filled and sits on a hard shadow. */
+.action-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--s-1);
+  margin: var(--section-gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.action-row__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  min-height: 72px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.action-row__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  color: var(--accent-ink);
+}
+
+.action-row__button:disabled {
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.action-row__button:disabled .action-row__icon {
+  border-style: dashed;
+  background: var(--tile);
+  color: var(--text-secondary);
+}
+
+.action-row__button:hover:not(:disabled) .action-row__icon {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+
+.action-row__button:active:not(:disabled) .action-row__icon {
+  transform: translateY(1px) scale(1.06, 0.92);
+}
+
+.action-row__button--primary .action-row__icon {
+  border-color: var(--ink);
+  background: var(--sun);
+  box-shadow: var(--shadow-sticker);
+  color: var(--on-sun);
+}
+
+.action-row__note {
+  min-height: var(--leading-caption);
+  margin-top: var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+/* Empty, the live line takes no room, so the next section keeps its --section-gap and no more. */
+.action-row__note:empty {
+  min-height: 0;
+  margin-top: 0;
+}
+
+.photo-strip {
+  margin: var(--s-4) 0 0;
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--divider);
+}
+
+.photo-strip__list {
+  display: flex;
+  gap: var(--s-2);
+  margin: 0 calc(-1 * var(--sheet-edge));
+  padding: 0 var(--sheet-edge);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Snapping keeps the sheet edge, so the first photo is never flush with the screen. */
+  scroll-padding-inline: var(--sheet-edge);
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.photo-strip__item {
+  flex: none;
+  width: 168px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--tile);
+  scroll-snap-align: start;
+}
+
+.photo-strip__item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fade-in var(--dur-3) var(--ease-out);
+}
+
+.photo-strip__item--missing {
+  display: grid;
+  place-items: center;
+  color: var(--text-tertiary);
+}
+
+.photo-strip figcaption {
+  margin-top: var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.site-location-line {
+  margin-top: var(--s-3);
+  color: var(--text);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: 600;
+}
+
+.counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--inline-gap);
+  margin: var(--section-gap) 0 0;
+}
+
+.counts__item {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-m);
+  background: var(--tile);
+}
+
+.counts__item dt {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+}
+
+.counts__item dd {
+  margin: var(--s-1) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-headline);
+  line-height: var(--leading-headline);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.brand-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.brand-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.brand-list__parent {
+  text-align: right;
+}
+
+.site-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+/* Status chips: a dot and the words on a soft tint (SiteStatusChip). No red: a normal state never reads as an error. */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 var(--s-2);
+  border-radius: var(--radius-pill);
+  background: var(--status-check-tint);
+  color: var(--status-check);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-chip::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-chip--verified {
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+}
+
+.status-chip--cleared {
+  background: var(--status-cleaned-tint);
+  color: var(--status-cleaned);
+}
+
+.status-chip--reopened {
+  background: var(--status-reopened-tint);
+  color: var(--status-reopened);
+}
+
+.status-chip--closed {
+  background: var(--tile);
+  color: var(--text-secondary);
+}
+
+/* The site's photos: the carousel with its count and Add a photo, under the actions and backers. */
+.site-photos {
+  margin-top: var(--section-gap);
+}
+
+.site-photos .photo-strip {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* A fixed-height carousel: the next photo peeks in from the right; a lone photo fills the width. */
+.site-photos .photo-strip__list--swipe .photo-strip__item {
+  width: min(260px, 78%);
+  height: 176px;
+  aspect-ratio: auto;
+  border-radius: var(--radius-l);
+}
+
+.site-photos .photo-strip__list--swipe .photo-strip__item:only-child {
+  width: 100%;
+}
+
+.site-photos__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-3);
+  margin-top: var(--s-3);
+}
+
+.site-photos__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: 600;
+}
+
+.add-photo {
+  display: contents;
+}
+
+.add-photo__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0 var(--s-4) 0 var(--s-3);
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--accent-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 44 px to look at, 48 px to tap. */
+.add-photo__button::before {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
+}
+
+.add-photo__button:hover {
+  border-color: var(--line-strong);
+}
+
+.add-photo__button[aria-disabled='true'] {
+  border-style: dashed;
+  background: var(--tile);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.add-photo__reason {
+  flex-basis: 100%;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+/* Each section below the actions is one card: who reported it, bins nearby, location, brands, history. */
+.site-panel > .facts {
+  margin-top: var(--card-gap);
+  padding: var(--card-pad);
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-l);
+}
+
+.site-panel > .facts .facts__row:last-child {
+  border-bottom: 0;
+}
+
+/* Card titles read like the notes card's: rounded, bold, in the text colour. */
+.site-panel > .facts .facts__title {
+  margin-bottom: var(--s-1);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  line-height: var(--leading-lead);
+  font-weight: 800;
+}
+
+.site-panel > .site-notes {
+  margin-top: var(--card-gap);
+}
+
+/* Preview card after tapping a pin: springs up from the bottom. */
+.preview-card {
+  position: absolute;
+  right: var(--edge);
+  bottom: var(--map-foot);
+  left: var(--edge);
+  z-index: 4;
+  display: flex;
+  gap: var(--s-3);
+  /* Grows with the text (Hindi, larger fonts) so Details never spills out. */
+  min-height: 112px;
+  padding: var(--card-pad);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  animation: card-in var(--dur-spring) var(--spring);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+.preview-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.preview-card__title {
+  display: flex;
+  /* Room for the close button. */
+  padding-right: var(--s-8);
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  line-height: var(--leading-lead);
+  font-weight: 700;
+}
+
+.preview-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+  margin-top: var(--s-1);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.preview-card .button--text {
+  position: relative;
+  align-self: flex-end;
+  min-height: 40px;
+  margin-top: auto;
+}
+
+/* 40 px to look at, 48 px to tap. */
+.preview-card .button--text::before {
+  inset: calc((40px - var(--target)) / 2) calc(-1 * var(--text-bleed));
+}
+
+.preview-card > .icon-button {
+  position: absolute;
+  top: var(--s-1);
+  right: var(--s-1);
+}
+
+@media (min-width: 1024px) {
+  .preview-card {
+    right: auto;
+    bottom: var(--edge);
+    left: calc(var(--panel-width) + var(--edge));
+    width: 380px;
+  }
+}
+
+/* Site rows: the desktop panel list and the no-WebGL list. */
+.site-rows,
+.site-list__items {
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--s-3) var(--s-2);
+  border: 0;
+  border-radius: var(--radius-m);
+  background: transparent;
+  color: var(--text-tertiary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+
+.site-row:hover {
+  background: var(--tile);
+}
+
+.site-row:active {
+  transform: scale(0.98);
+}
+
+.site-row__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+
+.site-row__text strong {
+  color: var(--text);
+  font-size: var(--text-lead);
+  line-height: var(--leading-lead);
+  font-weight: 700;
+}
+
+.site-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-1) var(--s-2);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+/* Withdraw my report: only for this phone's reporter while the site is unverified (decision 20261010-1700). Tokens only. */
+.withdraw-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding: var(--s-4);
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-l);
+}
+
+.withdraw-box__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  font-weight: 800;
+}
+
+.withdraw-box__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  animation: pop-in var(--dur-3) var(--spring);
+}
+
+.withdraw-box__text {
+  color: var(--text-secondary);
+}
+
+.withdraw-box__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  /* Text buttons reach --text-bleed past their label (DESIGN.md rule 4). */
+  gap: var(--inline-gap) var(--s-6);
+}
+
+/* A site off the map (removed, cleaned, rejected): what happened, in place of the votes and actions. */
+.site-closed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin-top: var(--s-6);
+  padding: var(--s-4);
+  border-radius: var(--radius-l);
+  background: var(--tile);
+}
+
+.site-closed__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lead);
+  font-weight: 800;
+}
+
+.site-closed__text {
+  color: var(--text-secondary);
+}
