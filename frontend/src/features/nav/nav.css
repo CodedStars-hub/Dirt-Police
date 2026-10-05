@@ -1,0 +1,209 @@
+/*
+  Phones: a bottom bar with five equal slots. Report is a sunny 60 px sticker button raised into the map, so it is
+  never clipped: the bar paints above the map (z-index) and every label sits on one baseline above the safe area.
+*/
+.nav-bar {
+  position: relative;
+  z-index: 8;
+  display: flex;
+  flex: none;
+  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding: 0 var(--s-1) env(safe-area-inset-bottom);
+  border-top: 1px solid var(--divider);
+  background: var(--surface);
+}
+
+/* Phones: while a field in a sheet has the keyboard up, the bar steps aside so the sheet keeps the room. */
+@media (max-width: 1023px) {
+  .map-page:has(.sheet textarea:focus, .sheet input:not([type='checkbox'], [type='radio'], [type='range']):focus) .nav-bar {
+    display: none;
+  }
+
+  /* Report steps aside with it, so the sheet's foot (sheet.css) needs no room for it. */
+  .map-page:has(.sheet textarea:focus, .sheet input:not([type='checkbox'], [type='radio'], [type='range']):focus) .map-area > .sheet {
+    padding-bottom: 0;
+  }
+}
+
+.nav-bar__brand {
+  display: none;
+}
+
+.nav-bar__item {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-1);
+  min-width: 0;
+  padding: 0 0 var(--s-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.nav-bar__indicator {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+}
+
+.nav-bar__label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-bar__item:hover {
+  color: var(--text);
+}
+
+.nav-bar__item[aria-current='page'] {
+  color: var(--accent-ink);
+}
+
+/* The selected pill pops in with a spring. */
+.nav-bar__item[aria-current='page'] .nav-bar__indicator {
+  background: var(--accent-tint);
+  animation: tab-pop var(--dur-spring) var(--spring-bouncy);
+}
+
+.nav-bar__item:active .nav-bar__indicator {
+  transform: scale(0.9);
+}
+
+@keyframes tab-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* Report: sunny yellow, ink outline, a hard sticker shadow; it squashes when pressed. */
+.nav-bar__item--report .nav-bar__indicator,
+.nav-bar__item--report[aria-current='page'] .nav-bar__indicator {
+  width: 60px;
+  height: 60px;
+  margin-top: calc(-1 * var(--s-6));
+  border: var(--outline) solid var(--ink);
+  border-radius: 50%;
+  background: var(--sun);
+  box-shadow: var(--shadow-sticker), 0 0 0 5px var(--surface);
+  color: var(--on-sun);
+  animation: report-nudge 7s var(--ease-out) 2s infinite;
+}
+
+.nav-bar__item--report {
+  color: var(--text);
+}
+
+.nav-bar__item--report:hover .nav-bar__indicator {
+  background: var(--sun-deep);
+}
+
+.nav-bar__item--report:active .nav-bar__indicator {
+  animation: none;
+  box-shadow: 0 0 0 var(--ink), 0 0 0 5px var(--surface);
+  transform: translateY(3px) scale(1.08, 0.88);
+}
+
+/* While the camera is open the button rests (no wiggle) and its label turns teal. */
+.nav-bar__item--report[aria-current='page'] .nav-bar__indicator {
+  animation: none;
+}
+
+.nav-bar__item--report[aria-current='page'] .nav-bar__label {
+  color: var(--accent-ink);
+}
+
+/* A gentle wiggle every few seconds so the main action feels alive, then it rests. */
+@keyframes report-nudge {
+  0%,
+  86%,
+  100% {
+    transform: none;
+  }
+
+  89% {
+    transform: rotate(-9deg) scale(1.06);
+  }
+
+  92% {
+    transform: rotate(7deg) scale(1.06);
+  }
+
+  95% {
+    transform: rotate(-4deg);
+  }
+}
+
+/* Desktop: the head of the side panel. Logo on top, then the tabs as pills; Report moves to the map's top right. */
+@media (min-width: 1024px) {
+  .nav-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: var(--s-1);
+    width: var(--panel-width);
+    height: auto;
+    padding: var(--s-4) var(--edge) 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .nav-bar__brand {
+    display: flex;
+    flex-basis: 100%;
+    align-items: center;
+    height: var(--s-12);
+    margin-bottom: var(--s-2);
+  }
+
+  .nav-bar__item {
+    flex: none;
+    position: relative;
+    justify-content: center;
+    height: 40px;
+    padding: 0 var(--s-4);
+    border-radius: var(--radius-pill);
+    transition: background-color var(--dur-2) var(--ease-out);
+  }
+
+  .nav-bar__item:hover {
+    background: var(--tile);
+  }
+
+  .nav-bar__item::before {
+    content: '';
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  /* Text pills: the icons stay on the phone bar, where labels are small. */
+  .nav-bar__indicator {
+    display: none;
+  }
+
+  .nav-bar__item[aria-current='page'] {
+    background: var(--accent-tint);
+  }
+
+  .nav-bar__label {
+    font-size: var(--text-small);
+  }
+
+  .nav-bar__item--report {
+    display: none;
+  }
+}
