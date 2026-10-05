@@ -1,0 +1,297 @@
+/* Fields, chips, checkboxes and buttons. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  margin-top: var(--section-gap);
+}
+
+/* The form's gap spaces its lines; a lead line adds no margin of its own. */
+.form > .sheet-text {
+  margin-top: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.field__label {
+  font-weight: 600;
+}
+
+.field__control {
+  position: relative;
+}
+
+.field__input {
+  width: 100%;
+  height: var(--target);
+  padding: 0 var(--s-4);
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  font-size: 16px;
+  transition:
+    border-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.field__input:hover {
+  border-color: var(--line-strong);
+}
+
+.field__input:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--accent-tint);
+}
+
+.field__input[aria-invalid='true'] {
+  border-color: var(--error);
+  animation: shake 360ms var(--ease-out);
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+.field__input--code {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5em;
+  text-align: center;
+}
+
+.field__control .icon-button {
+  position: absolute;
+  top: var(--s-1);
+  right: var(--s-1);
+}
+
+.field__control .field__input--with-button {
+  padding-right: 52px;
+}
+
+.field__hint {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.field__error {
+  color: var(--error);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+}
+
+.field__input--area {
+  height: auto;
+  min-height: 80px;
+  padding: var(--s-3) var(--s-4);
+  line-height: var(--leading-body);
+  resize: vertical;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+/* 44 px chips with a 48 px touch target. The chosen one fills and hops. */
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0 var(--s-4) 0 var(--s-3);
+  border: var(--outline) solid var(--divider);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip::before {
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+
+.chip:hover {
+  border-color: var(--line-strong);
+}
+
+.chip[aria-checked='true'] {
+  border-color: var(--ink);
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+  animation: chip-hop var(--dur-spring) var(--spring-bouncy);
+}
+
+@keyframes chip-hop {
+  from {
+    transform: scale(0.9);
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: var(--target);
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Buttons: chunky and round. Primary sits on a hard shadow and presses down into it. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--target);
+  padding: 0 var(--s-6);
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--accent);
+  box-shadow: 0 3px 0 var(--accent-pressed);
+  color: var(--on-accent);
+}
+
+.button--primary:hover {
+  background: var(--accent-hover);
+}
+
+.button--primary:active:not(:disabled),
+.button--sun:active:not(:disabled) {
+  box-shadow: 0 0 0 transparent;
+  transform: translateY(3px) scale(1.02, 0.96);
+}
+
+.button--sun {
+  border: var(--outline) solid var(--ink);
+  background: var(--sun);
+  box-shadow: var(--shadow-sticker);
+  color: var(--on-sun);
+}
+
+.button--sun:hover {
+  background: var(--sun-deep);
+}
+
+.button--secondary {
+  border: var(--outline) solid var(--divider);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.button--secondary:hover {
+  border-color: var(--line-strong);
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+/* Text buttons: the label sits on the content edge like the text around it; the tap area and the hover pill
+   reach --text-bleed past it on each side (::before), so a text button never looks indented. */
+.button--text {
+  --text-bleed: var(--s-3);
+  position: relative;
+  isolation: isolate;
+  min-width: var(--target);
+  min-height: var(--target);
+  padding: 0;
+  background: transparent;
+  color: var(--accent-ink);
+}
+
+.button--text::before {
+  content: '';
+  position: absolute;
+  inset: 0 calc(-1 * var(--text-bleed));
+  z-index: -1;
+  border-radius: var(--radius-pill);
+}
+
+.button--text:hover::before {
+  background: var(--accent-tint);
+}
+
+/* A text button stretched across a column already spans the content, so its pill stays inside it. */
+.form > .button--text,
+.snap-actions > .button--text {
+  --text-bleed: 0px;
+}
+
+/* Tonal: a quiet filled action, softer than primary (the main action on a card). */
+.button--tonal {
+  background: var(--accent-tint);
+  color: var(--accent-ink);
+}
+
+.button--tonal:hover {
+  background: var(--tile-hover);
+}
+
+/* Small: a compact card action that still keeps a 44 px touch target. */
+.button--small {
+  min-width: calc(var(--s-10) + var(--s-1));
+  min-height: calc(var(--s-10) + var(--s-1));
+  padding: 0 var(--s-4);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+}
+
+.button--text.button--small {
+  padding: 0;
+}
+
+.form__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  color: var(--text-secondary);
+}
+
+.form__error {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.form__note {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
