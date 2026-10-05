@@ -1,0 +1,207 @@
+/*
+  Phones: bottom sheet. Heights come from SheetDetents via --sheet-height; it springs up and slides away.
+  While a finger drags it (SheetDrag), --sheet-drag-height follows the finger and --sheet-drag-offset pushes it
+  below its lowest height; on release both go and the sheet springs to its detent, or slides away from there.
+*/
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  height: var(--sheet-drag-height, var(--sheet-height));
+  margin: 0 auto;
+  transform: translateY(var(--sheet-drag-offset, 0px));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--surface);
+  box-shadow: var(--shadow-sheet);
+  transition:
+    height var(--dur-spring) var(--spring),
+    transform var(--dur-spring) var(--spring);
+  animation: sheet-in var(--dur-spring) var(--spring);
+}
+
+.sheet--closing {
+  animation: sheet-out var(--dur-2) var(--ease-in) forwards;
+}
+
+.sheet--dragging {
+  transition: none;
+  user-select: none;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.sheet__bar {
+  position: relative;
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  height: var(--target);
+  padding: var(--s-1) var(--s-2) 0;
+  /* The bar is all drag: the browser neither scrolls nor zooms on it. */
+  touch-action: none;
+  cursor: grab;
+}
+
+.sheet__handle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: var(--target);
+  margin-left: -48px;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+}
+
+.sheet__grip {
+  width: 40px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
+  transition: width var(--dur-2) var(--spring);
+}
+
+.sheet__handle:hover .sheet__grip {
+  width: 52px;
+}
+
+.sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* A sheet over the map already stops above the raised Report button (below), so this is only breathing room. */
+  padding: 0 var(--edge) calc(var(--s-6) + env(safe-area-inset-bottom));
+  scroll-padding-bottom: var(--s-2);
+  /* Content scrolls at every height; a drag down from the top moves the sheet instead (useSheet). */
+  touch-action: pan-x pan-y;
+}
+
+/*
+  Phones and tablets: a sheet over the map ends at the nav bar, and the raised Report button reaches --report-overhang
+  up over its foot. The body stops --map-foot above the foot, like the map's own buttons, so at every height the last
+  line in view (the note under the site's actions on a half sheet) stays readable above Report.
+*/
+@media (max-width: 1023px) {
+  .map-area > .sheet {
+    padding-bottom: var(--map-foot);
+  }
+}
+
+/* Content arrives a beat after the sheet, so the eye follows the sheet first. */
+.sheet__body > * {
+  animation: rise var(--dur-3) var(--ease-out) 60ms both;
+}
+
+.sheet-title {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.sheet-text {
+  margin-top: var(--s-2);
+  color: var(--text-secondary);
+}
+
+/* Tablets: the sheet keeps a readable width over the map. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .sheet {
+    max-width: 600px;
+  }
+}
+
+/* Desktop: the sheet fills the side panel under its head (logo, tabs, search). */
+@media (min-width: 1024px) {
+  .sheet {
+    top: 228px;
+    right: auto;
+    z-index: 5;
+    width: var(--panel-width);
+    height: auto;
+    margin: 0;
+    border-top: 1px solid var(--divider);
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    animation: panel-in var(--dur-3) var(--ease-out);
+  }
+
+  .sheet--closing {
+    animation: panel-out var(--dur-1) var(--ease-in) forwards;
+  }
+
+  .sheet__handle {
+    display: none;
+  }
+
+  .sheet__bar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    padding: var(--s-3) var(--s-3) 0;
+  }
+
+  .sheet__body {
+    overflow-y: auto;
+    padding: var(--s-5) var(--edge) var(--s-8);
+  }
+
+  .sheet-title {
+    padding-right: var(--s-10);
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(-12px);
+    }
+  }
+
+  @keyframes panel-out {
+    to {
+      opacity: 0;
+    }
+  }
+}
+
+/* Top of every sheet while the phone is offline. */
+.offline-line {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 var(--edge) var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--radius-s);
+  background: var(--status-reopened-tint);
+  color: var(--text);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: 600;
+}
+
+.offline-line svg {
+  flex: none;
+  color: var(--status-reopened);
+}

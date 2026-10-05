@@ -1,0 +1,524 @@
+/* Base styles and the small shared controls. Tokens live in tokens.css. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-optical-sizing: auto;
+  color: var(--text);
+  background: var(--page);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  /* Taps act at once: no double-tap zoom on buttons and sheets (the map handles its own gestures). */
+  touch-action: manipulation;
+}
+
+/* Devanagari needs room for matras above and below the line. */
+:lang(hi) {
+  --font-body: 'Noto Sans Devanagari', 'Hanken Grotesk Variable', sans-serif;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent-ink);
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Sheet titles take focus only so screen readers announce them; no ring needed. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.icon,
+.marker-glyph {
+  display: block;
+  flex: none;
+}
+
+/* Press feedback shared by every tappable control. */
+.icon-button,
+.pill,
+.button,
+.chip,
+.segmented__option,
+.action-row__icon,
+.nav-bar__indicator {
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.icon-button:active,
+.pill:active,
+.button:active:not(:disabled),
+.chip:active,
+.segmented__option:active {
+  transform: scale(0.96);
+}
+
+.icon-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  background: var(--tile);
+  color: var(--text);
+}
+
+/* Small controls keep their look but get a 48 px touch target. */
+.icon-button::before {
+  content: '';
+  position: absolute;
+  inset: calc((40px - var(--target)) / 2);
+}
+
+.icon-button--float {
+  width: var(--target);
+  height: var(--target);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  color: var(--text);
+}
+
+.icon-button--float:hover {
+  background: var(--surface);
+  color: var(--accent-ink);
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: 40px;
+  padding: 0 var(--s-4) 0 var(--s-3);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  font-size: var(--text-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pill::before {
+  content: '';
+  position: absolute;
+  inset: calc((40px - var(--target)) / 2) 0;
+}
+
+.pill[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Status chips: a dot plus the word, so the colour is never the only cue. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--s-2);
+  border-radius: var(--radius-xs);
+  background: var(--status-check-tint);
+  color: var(--status-check);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.badge--reopened,
+.badge--cleaned,
+.badge--alert,
+.badge--progress-good,
+.badge--progress-alert,
+.badge--progress-wait,
+.badge--progress-muted {
+  padding-left: var(--s-2);
+}
+
+.badge--reopened::before,
+.badge--cleaned::before,
+.badge--alert::before,
+.badge--progress-good::before,
+.badge--progress-alert::before,
+.badge--progress-wait::before,
+.badge--progress-muted::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge--alert,
+.badge--progress-alert {
+  background: var(--status-open-tint);
+  color: var(--status-open);
+}
+
+.badge--reopened {
+  background: var(--status-reopened-tint);
+  color: var(--status-reopened);
+}
+
+.badge--cleaned,
+.badge--progress-good {
+  background: var(--status-cleaned-tint);
+  color: var(--status-cleaned);
+}
+
+/* Waiting on neighbours or the checks: the amber of "reopened", with its dot and word. */
+.badge--progress-wait {
+  background: var(--status-reopened-tint);
+  color: var(--status-reopened);
+}
+
+/* Withdrawn: settled and quiet. */
+.badge--progress-muted {
+  background: var(--status-check-tint);
+  color: var(--status-check);
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  color: var(--text-secondary);
+}
+
+/* A state to wait out, such as offline: amber like the sheets' offline line, never the error red. */
+.notice--warn {
+  color: var(--text);
+}
+
+.notice--warn svg {
+  color: var(--status-reopened);
+}
+
+.notice--alert {
+  color: var(--error);
+}
+
+/* Something still on its way (the map loading), the size of a notice icon; reduced motion leaves it still. */
+.spinner {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--divider);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.notice--warn .spinner {
+  border-top-color: var(--status-reopened);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading: a soft sweep instead of a blink. */
+.skeleton {
+  display: block;
+  border-radius: var(--radius-s);
+  background: var(--tile);
+  animation: skeleton-breathe 1.4s var(--ease-out) infinite;
+}
+
+@keyframes skeleton-breathe {
+  50% {
+    background-color: var(--tile-hover);
+  }
+}
+
+.segmented {
+  display: flex;
+  gap: var(--s-1);
+  padding: var(--s-1);
+  border-radius: var(--radius-m);
+  background: var(--tile);
+}
+
+.segmented__option {
+  position: relative;
+  flex: 1;
+  min-height: 40px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 40 px to look at; the hit area reaches into the tile's padding for 48 px. */
+.segmented__option::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--s-1)) 0;
+}
+
+/* Off until something finishes, e.g. the capture mode while a video records. */
+.segmented__option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.segmented__option:hover {
+  color: var(--text);
+}
+
+.segmented__option[aria-pressed='true'] {
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  color: var(--text);
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 56px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.switch-row__label {
+  flex: 1;
+  font-weight: 500;
+}
+
+.switch-row__meta {
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.switch-row__track {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--line-strong);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.switch-row__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-spring) var(--spring-bouncy);
+}
+
+.switch-row[aria-checked='true'] .switch-row__track {
+  background: var(--accent);
+}
+
+.switch-row[aria-checked='true'] .switch-row__track::after {
+  transform: translateX(16px);
+}
+
+.facts {
+  margin-top: var(--s-6);
+}
+
+/* Section labels: small, quiet, sentence case. */
+.facts__title,
+.section-label {
+  margin-bottom: var(--s-1);
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  font-weight: 600;
+}
+
+.facts__list {
+  margin: 0;
+}
+
+.facts__row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.facts__row dt {
+  color: var(--text-secondary);
+}
+
+.facts__row dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* A link in a fact row (ward, seat) is tappable over the row's full height. */
+.facts__row dd a {
+  display: inline-block;
+  padding-block: var(--s-3);
+  margin-block: calc(-1 * var(--s-3));
+}
+
+/* Lists that arrive together come in one after another. */
+.stagger > * {
+  animation: rise var(--dur-3) var(--ease-out) both;
+}
+
+.stagger > :nth-child(2) {
+  animation-delay: 30ms;
+}
+
+.stagger > :nth-child(3) {
+  animation-delay: 60ms;
+}
+
+.stagger > :nth-child(4) {
+  animation-delay: 90ms;
+}
+
+.stagger > :nth-child(5) {
+  animation-delay: 120ms;
+}
+
+.stagger > :nth-child(6) {
+  animation-delay: 150ms;
+}
+
+.stagger > :nth-child(n + 7) {
+  animation-delay: 180ms;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* An area's map colour (TintSwatch): the same 15% wash the map draws, with a softened ring of its --area-tint. */
+.tint-swatch {
+  display: inline-block;
+  flex: none;
+  border: 2px solid color-mix(in srgb, var(--swatch) 55%, var(--surface));
+  background: color-mix(in srgb, var(--swatch) 15%, var(--surface));
+}
+
+.tint-swatch--small {
+  width: 14px;
+  height: 14px;
+  margin-right: var(--s-2);
+  border-radius: 4px;
+  vertical-align: -1px;
+}
+
+.tint-swatch--large {
+  align-self: flex-start;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-m);
+}
