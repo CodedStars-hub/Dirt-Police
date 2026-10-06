@@ -1,0 +1,62 @@
+import { ApiError } from '../src/domain/ApiError';
+import type { NoteRequest, SiteNote } from '../src/domain/Community';
+import type { PhotoFlagRequest, PhotoFlagResult } from '../src/domain/PhotoFlag';
+import type { CleanupAccepted, CleanupRequest, LetterDraft, LetterRequest, VoteRequest, VoteResult, WithdrawalResult } from '../src/domain/SiteActions';
+import { sampleLetterLoader } from '../src/services/siteFixtures';
+import type { SiteActionsApi } from '../src/services/SiteActionsApi';
+
+type Call = 'vote' | 'cleanup' | 'letter' | 'note' | 'withdraw' | 'flagPhoto';
+
+/** Records every call with its site id and body; each failNext makes one more call of a kind fail. */
+export class FakeSiteActionsApi implements SiteActionsApi {
+  readonly calls: { readonly kind: Call; readonly siteId: string; readonly body: unknown }[] = [];
+  readonly #failures = new Map<Call, ApiError[]>();
+
+  /** message is the api's plain-text message; empty means the app's own wording is shown. */
+  failNext(kind: Call, status: number, code: string, message = ''): void {
+    this.#failures.set(kind, [...(this.#failures.get(kind) ?? []), new ApiError(status, code, message)]);
+  }
+
+  async vote(siteId: string, request: VoteRequest): Promise<VoteResult> {
+    this.#record('vote', siteId, request);
+    return { site_id: siteId, votes: { confirm: 3, reject: 1, cleaned: 2 }, backers: { count: 10, needed: 10, photo_people: 7, vote_people: 3 }, verification: 'verified' };
+  }
+
+  async cleanup(siteId: string, request: CleanupRequest): Promise<CleanupAccepted> {
+    this.#record('cleanup', siteId, request);
+    return { cleanup_id: request.upload_id.replace(/^upl_/, 'cln_'), site_id: siteId, status: 'checking' };
+  }
+
+  async letter(siteId: string, request: LetterRequest): Promise<LetterDraft> {
+    this.#record('letter', siteId, request);
+    return { ...(await sampleLetterLoader()), site_id: siteId, language: request.language };
+  }
+
+  async note(siteId: string, request: NoteRequest): Promise<SiteNote> {
+    this.#record('note', siteId, request);
+    const hidden = request.text.includes('98765');
+    return { note_id: 'note_test', site_id: siteId, status: hidden ? 'hidden' : 'shown', text: hidden ? null : request.text, language: request.language, created_at: '2026-10-10T10:00:00Z' };
+  }
+
+  /** Whether the next withdrawal leaves the site with no reporter. */
+  siteRemoved = true;
+
+  async withdraw(siteId: string): Promise<WithdrawalResult> {
+    this.#record('withdraw', siteId, null);
+    const status = this.siteRemoved ? 'removed' : 'open';
+    const backers = { count: this.siteRemoved ? 1 : 2, needed: 10, photo_people: 1, vote_people: 0 };
+    return { site_id: siteId, withdrawn_report_ids: ['rpt_mine'], site_removed: this.siteRemoved, status, verification: 'unverified', backers };
+  }
+
+  async flagPhoto(siteId: string, photoId: string, request: PhotoFlagRequest): Promise<PhotoFlagResult> {
+    this.#record('flagPhoto', siteId, { photoId, ...request });
+    const text_status = request.text === undefined ? 'none' : 'shown';
+    return { site_id: siteId, photo_id: photoId, reason: request.reason, text_status, photo: { count: 1, warned: false, hidden: false }, site_status: 'open', created_at: '2026-10-11T03:10:00Z' };
+  }
+
+  #record(kind: Call, siteId: string, body: unknown): void {
+    this.calls.push({ kind, siteId, body });
+    const failure = this.#failures.get(kind)?.shift();
+    if (failure) throw failure;
+  }
+}
