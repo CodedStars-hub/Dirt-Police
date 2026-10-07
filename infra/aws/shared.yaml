@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: DirtPolice ECR repositories shared by every stage (stack dirtpolice-shared).
+
+Resources:
+  # Rule 1 matches the deployed stage-dev and stage-demo images, so rule 2 can never expire them.
+  ServerRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dirtpolice-server
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules": [
+            {"rulePriority": 1, "description": "Never expire deployed stage images",
+             "selection": {"tagStatus": "tagged", "tagPrefixList": ["stage-"],
+               "countType": "imageCountMoreThan", "countNumber": 9999},
+             "action": {"type": "expire"}},
+            {"rulePriority": 2, "description": "Keep the last 50 images",
+             "selection": {"tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 50},
+             "action": {"type": "expire"}}]}
+
+  MlRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dirtpolice-ml
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules": [
+            {"rulePriority": 1, "description": "Never expire deployed stage images",
+             "selection": {"tagStatus": "tagged", "tagPrefixList": ["stage-"],
+               "countType": "imageCountMoreThan", "countNumber": 9999},
+             "action": {"type": "expire"}},
+            {"rulePriority": 2, "description": "Keep the last 50 images",
+             "selection": {"tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 50},
+             "action": {"type": "expire"}}]}
+
+  # The ward crawler CronJob (data/ward_crawler), decision 20261010-1445-hem-ward-crawler-service.
+  CrawlerRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: dirtpolice-crawler
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EmptyOnDelete: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {"rules": [
+            {"rulePriority": 1, "description": "Never expire deployed stage images",
+             "selection": {"tagStatus": "tagged", "tagPrefixList": ["stage-"],
+               "countType": "imageCountMoreThan", "countNumber": 9999},
+             "action": {"type": "expire"}},
+            {"rulePriority": 2, "description": "Keep the last 20 images",
+             "selection": {"tagStatus": "any", "countType": "imageCountMoreThan", "countNumber": 20},
+             "action": {"type": "expire"}}]}
+
+Outputs:
+  ServerRepositoryUri:
+    Description: TypeScript image for api, worker and scores
+    Value: !GetAtt ServerRepository.RepositoryUri
+  MlRepositoryUri:
+    Description: Python image for ml
+    Value: !GetAtt MlRepository.RepositoryUri
+  CrawlerRepositoryUri:
+    Description: Python image for the crawler CronJob
+    Value: !GetAtt CrawlerRepository.RepositoryUri

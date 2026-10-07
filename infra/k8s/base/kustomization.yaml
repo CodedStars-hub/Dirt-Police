@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: dirtpolice
+resources:
+  - serviceaccounts.yaml
+  - api.yaml
+  - worker.yaml
+  - scores.yaml
+  - crawler.yaml
+  - ml.yaml
+  - ingress.yaml
+# Names from contracts/README.md; overlays merge in the per-stage values. Infra wiring only:
+# every tunable (rate limits, radii, timeouts, ml thresholds, crawl timing) lives in config/ and
+# scripts/deploy.py writes it into the generated layer (docs/config.md).
+configMapGenerator:
+  - name: dirtpolice-config
+    literals:
+      - AWS_REGION=ap-south-1
+      - AWS_DEFAULT_REGION=ap-south-1
+      - ML_URL=http://ml
+      # Ward crawl extraction models (decision 20261010-1445).
+      - >-
+        CRAWL_MODELS=[{"model_id": "apac.amazon.nova-pro-v1:0", "version": "amazon.nova-pro-v1:0",
+        "usd_per_million_in": 0.8, "usd_per_million_out": 3.2},
+        {"model_id": "apac.amazon.nova-lite-v1:0", "version": "amazon.nova-lite-v1:0",
+        "usd_per_million_in": 0.06, "usd_per_million_out": 0.24}]
+      # Brand judging runs in the worker, which has no provider keys: Bedrock only. Notes are pinned to Bedrock in code.
+      - >-
+        LLM_TASKS={"brands": {"provider": "bedrock", "model": "global.anthropic.claude-sonnet-4-6",
+        "fallback": [{"provider": "bedrock", "model": "in.anthropic.claude-haiku-4-5-20251001-v1:0"},
+        {"provider": "bedrock", "model": "apac.amazon.nova-pro-v1:0"}]}}
