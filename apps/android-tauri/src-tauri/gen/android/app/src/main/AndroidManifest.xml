@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- DirtPolice: navigator.onLine and the online event (offline upload queue) need this in a
+         WebView. Video records without sound and print/share use system screens, so there is no
+         RECORD_AUDIO and no storage permission. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- DirtPolice: in-app camera (Snap, Scan) and GPS for each report. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+
+    <!-- AndroidTV support -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.dirtpolice"
+        android:usesCleartextTraffic="${usesCleartextTraffic}">
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
+            android:launchMode="singleTask"
+            android:label="@string/main_activity_title"
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <!-- AndroidTV support -->
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+            <!-- DirtPolice: links that open a screen (AppLinks.kt; the page maps them in AppLinkRoutes.ts):
+                 dirtpolice://sites/{id}[/letter], dirtpolice://areas/{kind}/{id}[/letter] and
+                 dirtpolice://activity/reports/{id}. The api's share pages open these through an intent:// URL. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="dirtpolice" />
+                <data android:host="sites" />
+                <data android:host="areas" />
+                <data android:host="activity" />
+            </intent-filter>
+            <!-- DirtPolice: https links. Share links on the demo api (CloudFront) and page links on the demo
+                 web app (Amplify: dirtpolice.coehemang.dev and its original amplifyapp.com address). Android verifies each host through its /.well-known/assetlinks.json
+                 (docs/android.md). Until a host verifies, Android 11 and older offer "Open with DirtPolice",
+                 and Android 12+ opens the links in the browser unless they are allowed under the app's
+                 "Open by default" settings. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="d2s7tf4ua41hzf.cloudfront.net" />
+                <data android:pathPrefix="/share/" />
+                <data android:pathPrefix="/sites/" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="dirtpolice.coehemang.dev" />
+                <data android:host="demo.d3iec0rb3f75jm.amplifyapp.com" />
+                <data android:pathPrefix="/share/" />
+                <data android:pathPrefix="/sites/" />
+                <data android:pathPrefix="/areas/" />
+                <data android:pathPrefix="/activity/reports/" />
+            </intent-filter>
+        </activity>
+
+        <provider
+          android:name="androidx.core.content.FileProvider"
+          android:authorities="${applicationId}.fileprovider"
+          android:exported="false"
+          android:grantUriPermissions="true">
+          <meta-data
+            android:name="android.support.FILE_PROVIDER_PATHS"
+            android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
