@@ -1,0 +1,106 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Validate fixtures against schemas
+        run: uv run scripts/validate_contracts.py
+      - name: Check config/ against the documented variables (docs/config.md)
+        run: uv run scripts/check_config.py
+      - name: Test the config loader, drift check and deploy scripts (no AWS)
+        run: >-
+          uv run --with pytest pytest -q scripts/tests/test_stage_config.py
+          scripts/tests/test_check_config.py scripts/tests/test_deploy.py
+          scripts/tests/test_android_stage.py
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lint, typecheck, test, build
+        shell: bash
+        run: |
+          if [ ! -f frontend/package.json ]; then
+            echo "No frontend/package.json yet, skipping"
+            exit 0
+          fi
+          cd frontend
+          npm ci
+          npm run lint --if-present
+          if [ -f tsconfig.json ]; then npx tsc --noEmit; fi
+          npm test --if-present -- --run
+          npm run build
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Lint, type check and test each Python package
+        shell: bash
+        run: |
+          for d in backend/ml backend/ml/training data/ward_crawler data/ward_boundaries; do
+            if [ ! -f "$d/pyproject.toml" ]; then
+              echo "No $d/pyproject.toml yet, skipping"
+              continue
+            fi
+            echo "::group::$d"
+            (
+              cd "$d"
+              uv sync --locked
+              uv run ruff check .
+              uv run mypy --strict src
+              uv run pytest -q
+            )
+            echo "::endgroup::"
+          done
+
+  server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Lint, typecheck, test, build; generated contracts up to date
+        shell: bash
+        run: |
+          if [ ! -f backend/server/package.json ]; then
+            echo "No backend/server/package.json yet, skipping"
+            exit 0
+          fi
+          cd backend/server
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run build
+          npm run gen:contracts
+          if [ -n "$(git status --porcelain -- src/contracts)" ]; then
+            git status --short -- src/contracts
+            echo "Generated contracts are stale: run npm run gen:contracts and commit"
+            exit 1
+          fi
+
+  limits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Check size limits (docs/working.md section 4)
+        run: uv run scripts/check_limits.py
