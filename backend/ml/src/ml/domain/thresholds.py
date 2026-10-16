@@ -1,0 +1,3 @@
+# Community verification gates
+VERIFIED_GATE_THRESHOLD = 0.50
+DETECTOR_CONFIDENCE_MIN = 0.45
