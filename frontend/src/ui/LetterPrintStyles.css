@@ -1,0 +1,4 @@
+@media print {
+  .letter-container { margin: 0; box-shadow: none; }
+  .no-print { display: none !important; }
+}
