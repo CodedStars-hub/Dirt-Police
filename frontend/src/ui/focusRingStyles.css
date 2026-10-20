@@ -1,0 +1,4 @@
+:focus-visible {
+  outline: 2px solid var(--accent, #0b7a6f);
+  outline-offset: 2px;
+}
