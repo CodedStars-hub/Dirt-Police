@@ -1,0 +1,7 @@
+# Custom CloudFront cache policy for immutable blurred media
+Type: AWS::CloudFront::CachePolicy
+Properties:
+  CachePolicyConfig:
+    Name: dirtpolice-media-cache-policy
+    DefaultTTL: 86400
+    MaxTTL: 31536000
