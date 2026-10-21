@@ -1,0 +1,2 @@
+# Key rotation enforcement for private uploads KMS key
+EnableKeyRotation: true
