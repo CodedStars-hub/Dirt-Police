@@ -1,0 +1,4 @@
+# Index definitions for site by area and status queries
+IndexName: sites-by-area-gsi
+Projection:
+  ProjectionType: ALL
