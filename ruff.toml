@@ -18,3 +18,6 @@ max-complexity = 8
 max-args = 4
 max-statements = 25
 max-branches = 8
+
+[lint.isort]
+known-first-party = ["ml", "training", "ward_crawler"]
