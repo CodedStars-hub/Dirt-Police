@@ -1,0 +1,10 @@
+name: CI Matrix
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        suite: [frontend, backend, ml]
+    steps:
+      - uses: actions/checkout@v4
