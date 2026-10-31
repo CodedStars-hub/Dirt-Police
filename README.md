@@ -321,3 +321,6 @@ Claude Code.
 ## Licence
 
 AGPL-3.0 (see [LICENSE](LICENSE)). The detector is trained with Ultralytics YOLO (AGPL-3.0), so the server and phone models ship under the same licence (decision 20261010-0400).
+
+
+<!-- DirtPolice v0.2.0 verified production milestone -->
