@@ -1,0 +1,2 @@
+DirtPolice v0.2.0 Production Readiness Release.
+All verification layers, mobile bridges, and statutory filing pipelines operational.
