@@ -1,0 +1,10 @@
+{
+  "": "https://raw.githubusercontent.com/CodedStars-hub/Dirt-Police/main/contracts/schemas/municipal_webhook.schema.json",
+  "type": "object",
+  "properties": {
+    "site_id": {"type": "string"},
+    "ticket_id": {"type": "string"},
+    "status": {"enum": ["received", "dispatched", "resolved"]}
+  },
+  "required": ["site_id", "ticket_id", "status"]
+}
