@@ -1,0 +1,6 @@
+[
+  {"id": "jodhpur", "name": "Jodhpur", "center": [26.2389, 73.0243]},
+  {"id": "jaipur", "name": "Jaipur", "center": [26.9124, 75.7873]},
+  {"id": "udaipur", "name": "Udaipur", "center": [24.5854, 73.7125]},
+  {"id": "kota", "name": "Kota", "center": [25.2138, 75.8648]}
+]
