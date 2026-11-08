@@ -1,0 +1,9 @@
+{
+  "": "https://raw.githubusercontent.com/CodedStars-hub/Dirt-Police/main/contracts/schemas/voice_note.schema.json",
+  "type": "object",
+  "properties": {
+    "audio_url": {"type": "string"},
+    "duration_seconds": {"type": "number"},
+    "codec": {"enum": ["audio/webm", "audio/mp4", "audio/ogg"]}
+  }
+}
