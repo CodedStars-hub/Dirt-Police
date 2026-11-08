@@ -1,0 +1,5 @@
+# IAM policy granting worker permission to invoke Amazon Transcribe
+Action:
+  - transcribe:StartTranscriptionJob
+  - transcribe:GetTranscriptionJob
+Resource: "*"
