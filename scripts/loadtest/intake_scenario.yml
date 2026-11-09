@@ -1,0 +1,9 @@
+config:
+  target: "https://d2s7tf4ua41hzf.cloudfront.net"
+  phases:
+    - duration: 60
+      arrivalRate: 20
+scenarios:
+  - flow:
+      - get:
+          url: "/healthz"
