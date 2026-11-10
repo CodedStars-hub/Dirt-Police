@@ -324,3 +324,5 @@ AGPL-3.0 (see [LICENSE](LICENSE)). The detector is trained with Ultralytics YOLO
 
 
 <!-- DirtPolice v0.2.0 verified production milestone -->
+
+<!-- DirtPolice v0.3.0 production milestone: 10 cities, 86 new verified features -->
