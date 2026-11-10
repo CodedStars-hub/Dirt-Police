@@ -1,2 +1,2 @@
-DirtPolice v0.2.0 Production Readiness Release.
-All verification layers, mobile bridges, and statutory filing pipelines operational.
+DirtPolice v0.3.0 Production Release Milestone.
+Features: Municipal Webhooks, H3 Indexing, Multi-City Pilots, Voice Notes, Open Data API.
