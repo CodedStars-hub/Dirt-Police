@@ -1,5 +1,5 @@
 {
-  "": "https://raw.githubusercontent.com/CodedStars-hub/Dirt-Police/main/contracts/schemas/satellite_change.schema.json",
+  "$id": "https://raw.githubusercontent.com/CodedStars-hub/Dirt-Police/main/contracts/schemas/satellite_change.schema.json",
   "type": "object",
   "properties": {
     "area_id": {"type": "string"},

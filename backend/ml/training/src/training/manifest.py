@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from training.class_map import ClassMap
-from training.domain import TRAINABLE_SPLITS, ConfigError, ImageRecord, DirtPoliceError, ManifestRow
+from training.domain import TRAINABLE_SPLITS, ConfigError, DirtPoliceError, ImageRecord, ManifestRow
 from training.fetch import RecordFile
 from training.ports import ObjectStore
 from training.utils import count_values, s3_key

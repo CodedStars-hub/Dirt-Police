@@ -1,4 +1,6 @@
-"""Every dataset DirtPolice uses, with its licence. Details and reasons: data/datasets/SOURCES.md."""
+"""
+Every dataset DirtPolice uses, with its licence. Details and reasons: data/datasets/SOURCES.md.
+"""
 
 from __future__ import annotations
 

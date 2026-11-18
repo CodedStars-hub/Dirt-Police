@@ -2,6 +2,7 @@ import os
 
 import boto3
 import pytest
+
 from training.adapters import S3ObjectStore, StackBucketLocator
 
 pytestmark = pytest.mark.skipif(os.environ.get("RUN_AWS_TESTS") != "1", reason="RUN_AWS_TESTS=1")

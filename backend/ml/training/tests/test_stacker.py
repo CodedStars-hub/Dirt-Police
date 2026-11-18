@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from training.domain import ConfigError, ManifestRow
 from training.learn.cascade import Calibration, Cascade
 from training.learn.cases import CaseWriter

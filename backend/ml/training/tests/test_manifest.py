@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from PIL import Image
+
 from training import manifest as manifest_module
 from training.adapters import LocalOnlyStore
 from training.domain import Box, ConfigError, ExternalServiceError, ImageRecord, ManifestRow

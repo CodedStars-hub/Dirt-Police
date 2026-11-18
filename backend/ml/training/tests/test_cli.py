@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+
 from training.cli import main
 from training.domain import ConfigError, ImageRecord, ManifestRow
 from training.fetch import RecordFile

@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from training.class_map import ClassMap, ClassRule, SourceRules
 from training.domain import Attributes, Box, ConfigError, ImageRecord
 
