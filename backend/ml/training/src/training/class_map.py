@@ -1,4 +1,6 @@
-"""Maps source dataset classes to DirtPolice report types, materials, hazards and detector classes."""
+"""
+Maps source dataset classes to DirtPolice report types, materials, hazards and detector classes.
+"""
 
 from __future__ import annotations
 

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from training.domain import ConfigError, ManifestRow
 from training.learn.domain import LinearModel
 from training.learn.embeddings import EmbeddingCache, EmbeddingTable

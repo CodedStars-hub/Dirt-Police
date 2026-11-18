@@ -6,13 +6,16 @@ import { validateBrandLabel } from "./brand_label.gen.js";
 import { validateLetterDraft } from "./letter_draft.gen.js";
 import { validateLocationLookup } from "./location_lookup.gen.js";
 import { validateModerationResult } from "./moderation_result.gen.js";
+import { validateMunicipalWebhook } from "./municipal_webhook.gen.js";
 import { validatePhotoFlag } from "./photo_flag.gen.js";
 import { validateReportList } from "./report_list.gen.js";
 import { validateReportUpload } from "./report_upload.gen.js";
+import { validateSatelliteChange } from "./satellite_change.gen.js";
 import { validateScanSession } from "./scan_session.gen.js";
 import { validateSite } from "./site.gen.js";
 import { validateSiteNote } from "./site_note.gen.js";
 import { validateVerificationResult } from "./verification_result.gen.js";
+import { validateVoiceNote } from "./voice_note.gen.js";
 import { validateWardRecord } from "./ward_record.gen.js";
 import { validateWardScores } from "./ward_scores.gen.js";
 
@@ -23,13 +26,16 @@ export { type BrandLabel, brandLabelSchema, validateBrandLabel } from "./brand_l
 export { type LetterDraft, letterDraftSchema, validateLetterDraft } from "./letter_draft.gen.js";
 export { type LocationLookup, locationLookupSchema, validateLocationLookup } from "./location_lookup.gen.js";
 export { type ModerationResult, moderationResultSchema, validateModerationResult } from "./moderation_result.gen.js";
+export { type MunicipalWebhook, municipalWebhookSchema, validateMunicipalWebhook } from "./municipal_webhook.gen.js";
 export { type PhotoFlag, photoFlagSchema, validatePhotoFlag } from "./photo_flag.gen.js";
 export { type ReportList, reportListSchema, validateReportList } from "./report_list.gen.js";
 export { type ReportUpload, reportUploadSchema, validateReportUpload } from "./report_upload.gen.js";
+export { type SatelliteChange, satelliteChangeSchema, validateSatelliteChange } from "./satellite_change.gen.js";
 export { type ScanSession, scanSessionSchema, validateScanSession } from "./scan_session.gen.js";
 export { type Site, siteSchema, validateSite } from "./site.gen.js";
 export { type SiteNote, siteNoteSchema, validateSiteNote } from "./site_note.gen.js";
 export { type VerificationResult, verificationResultSchema, validateVerificationResult } from "./verification_result.gen.js";
+export { type VoiceNote, voiceNoteSchema, validateVoiceNote } from "./voice_note.gen.js";
 export { type WardRecord, wardRecordSchema, validateWardRecord } from "./ward_record.gen.js";
 export { type WardScores, wardScoresSchema, validateWardScores } from "./ward_scores.gen.js";
 
@@ -41,13 +47,16 @@ export const CONTRACT_VALIDATORS = {
   letter_draft: validateLetterDraft,
   location_lookup: validateLocationLookup,
   moderation_result: validateModerationResult,
+  municipal_webhook: validateMunicipalWebhook,
   photo_flag: validatePhotoFlag,
   report_list: validateReportList,
   report_upload: validateReportUpload,
+  satellite_change: validateSatelliteChange,
   scan_session: validateScanSession,
   site: validateSite,
   site_note: validateSiteNote,
   verification_result: validateVerificationResult,
+  voice_note: validateVoiceNote,
   ward_record: validateWardRecord,
   ward_scores: validateWardScores,
 } as const;

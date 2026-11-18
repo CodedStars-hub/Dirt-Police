@@ -8,9 +8,9 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from ml.domain.errors import (
+    DirtPoliceError,
     InvalidClaimError,
     InvalidImageError,
-    DirtPoliceError,
     NotBlurredImageError,
 )
 from ml.handlers.verify_body import VerifyBody

@@ -2,6 +2,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+
 from training.domain import Box, ConfigError, ImageRecord, ManifestRow
 from training.fetch import RecordFile
 from training.manifest import ManifestFile

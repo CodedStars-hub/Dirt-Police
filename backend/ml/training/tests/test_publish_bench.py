@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from training.domain import ConfigError, ManifestRow
 from training.learn.bench import JudgeBench
 from training.learn.publish import ModelPublisher, Release

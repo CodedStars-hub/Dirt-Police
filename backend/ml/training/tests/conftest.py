@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from training.class_map import ClassMap
 from training.ports import ObjectStore
 

@@ -105,7 +105,9 @@ class CliParser:
     def __init__(self) -> None:
         self._common = argparse.ArgumentParser(add_help=False)
         self._common.add_argument("--no-upload", action="store_true", help="keep files local")
-        self._root = argparse.ArgumentParser(prog="training", description="DirtPolice dataset steps")
+        self._root = argparse.ArgumentParser(
+            prog="training", description="DirtPolice dataset steps"
+        )
         self._sub = self._root.add_subparsers(dest="command", required=True)
 
     def build(self) -> argparse.ArgumentParser:
